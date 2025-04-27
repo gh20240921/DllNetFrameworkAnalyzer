@@ -128,7 +128,6 @@ namespace DllNetFrameworkAnalyzer
                 Console.WriteLine($"ファイルを開く際にエラーが発生しました: {ex.Message}");
             }
         }
-
     }
 
     public class MainViewModel : INotifyPropertyChanged
