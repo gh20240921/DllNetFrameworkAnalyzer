@@ -4,6 +4,9 @@
              xmlns:local="clr-namespace:DllNetFrameworkAnalyzer"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <local:BoolToSuccessFailedConverter x:Key="BoolToSuccessFailedConverter" />
+        <local:BoolToColorConverter x:Key="BoolToColorConverter" />
     </Application.Resources>
 </Application>

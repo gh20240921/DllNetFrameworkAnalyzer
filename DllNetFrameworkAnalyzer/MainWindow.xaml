@@ -5,8 +5,128 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DllNetFrameworkAnalyzer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="DLL .NET Framework Analyzer" Height="600" Width="900" WindowStartupLocation="CenterScreen">
 
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,5,0"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="5,0"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="MinWidth" Value="80"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- タイトル -->
+        <TextBlock Grid.Row="0" Text="DLL .NET Framework バージョン解析ツール" 
+                   FontSize="20" FontWeight="Bold" Margin="0,0,0,15"/>
+
+        <!-- フォルダ選択 -->
+        <Grid Grid.Row="1" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="フォルダパス：" />
+            <TextBox Grid.Column="1" Text="{Binding FolderPath, UpdateSourceTrigger=PropertyChanged}" 
+                     ToolTip="解析するDLLファイルを含むフォルダを指定してください"/>
+            <Button Grid.Column="2" Content="参照..." Click="BrowseFolderButton_Click" Margin="5,0,0,0"/>
+        </Grid>
+
+        <!-- 出力ファイル選択 -->
+        <Grid Grid.Row="2" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="CSV出力先：" />
+            <TextBox Grid.Column="1" Text="{Binding OutputFilePath, UpdateSourceTrigger=PropertyChanged}" 
+                     ToolTip="分析結果を保存するCSVファイルのパスを指定してください"/>
+            <Button Grid.Column="2" Content="参照..." Click="BrowseOutputFileButton_Click" Margin="5,0,0,0"/>
+        </Grid>
+
+        <!-- オプション -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10">
+            <CheckBox Content="サブフォルダを含む" IsChecked="{Binding IncludeSubfolders}" 
+                      VerticalAlignment="Center" ToolTip="チェックするとサブフォルダも検索します"/>
+        </StackPanel>
+
+        <!-- 実行ボタン -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,10">
+            <Button Content="解析開始" Click="AnalyzeButton_Click" IsEnabled="{Binding IsAnalyzing, Converter={StaticResource InverseBooleanConverter}}"
+                    Background="#007ACC" Foreground="White" FontWeight="Bold"/>
+            <Button Content="CSVを開く" Click="OpenCsvButton_Click" Margin="10,0,0,0"/>
+        </StackPanel>
+
+        <!-- 結果表示 -->
+        <Grid Grid.Row="5" Margin="0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="解析結果：" FontWeight="Bold"/>
+
+            <DataGrid Grid.Row="1" ItemsSource="{Binding AssemblyInfos}" AutoGenerateColumns="False" 
+                      CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                      AlternatingRowBackground="#F0F0F0" BorderThickness="1" BorderBrush="#CCCCCC">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ファイル名" Binding="{Binding FileName}" Width="150"/>
+                    <DataGridTextColumn Header="CLRバージョン" Binding="{Binding RuntimeVersion}" Width="120"/>
+                    <DataGridTextColumn Header=".NETバージョン" Binding="{Binding FrameworkVersion}" Width="150"/>
+                    <DataGridTextColumn Header="プロセッサ" Binding="{Binding ProcessorArchitecture}" Width="120"/>
+                    <DataGridTextColumn Header="ファイルパス" Binding="{Binding FilePath}" Width="*"/>
+                    <DataGridTemplateColumn Header="状態" Width="60">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding IsAnalyzed, Converter={StaticResource BoolToSuccessFailedConverter}}"
+                                           Foreground="{Binding IsAnalyzed, Converter={StaticResource BoolToColorConverter}}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <!-- ステータスバー -->
+        <Grid Grid.Row="6" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
+
+            <ProgressBar Grid.Column="1" Height="20" Margin="10,0" Value="{Binding ProgressValue}" 
+                         Visibility="{Binding IsAnalyzing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <TextBlock Grid.Column="2" Text="{Binding ProgressDetail}" VerticalAlignment="Center"
+                       Visibility="{Binding IsAnalyzing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        </Grid>
     </Grid>
 </Window>
